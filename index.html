@@ -1,169 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Two-Player Digital Art Quiz</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Art Quiz - 2 Player</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body, html { height: 100%; overflow: hidden; }
 
-    body, html {
-      height: 100%;
-      width: 100%;
-    }
+        .container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            flex-direction: row;
+        }
 
-    .container {
-      display: flex;
-      height: 100vh;
-      width: 100vw;
-    }
+        /* Mobile adaptation: stack vertically on small screens if preferred, 
+           but for 2-player head-to-head, horizontal split is usually better on tablets. */
+        @media (max-width: 600px) {
+            .container { flex-direction: column; }
+            .player-side { height: 50vh; }
+        }
 
-    .player {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      color: #333;
-    }
+        .player-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            transition: background-color 0.5s ease;
+        }
 
-    .player1 {
-      background-color: #FFD1DC; /* pastel pink */
-    }
+        #p1 { background-color: #ffd1dc; /* Pastel Pink */ }
+        #p2 { background-color: #e0b0ff; /* Pastel Purple */ border-left: 2px solid rgba(0,0,0,0.1); }
+        
+        .finished { background-color: #ff9999 !important; /* Pastel Red */ }
 
-    .player2 {
-      background-color: #B0E0E6; /* pastel blue */
-    }
+        h1 { font-size: 1.5rem; margin-bottom: 10px; color: #444; }
+        .score-board { font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; background: rgba(255,255,255,0.3); padding: 5px 15px; border-radius: 20px; }
+        
+        .question-text {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            line-height: 1.4;
+            font-weight: 600;
+        }
 
-    h2 {
-      font-size: 2em;
-      margin-bottom: 10px;
-    }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+        }
 
-    .score {
-      font-size: 1.5em;
-      margin-bottom: 20px;
-    }
+        button {
+            padding: 15px 10px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.1s, background 0.2s;
+            color: #333;
+            font-weight: bold;
+        }
 
-    .question {
-      font-size: 1.3em;
-      margin-bottom: 20px;
-      text-align: center;
-      min-height: 60px;
-    }
+        button:active { transform: scale(0.95); }
+        button:hover { background: #f0f0f0; }
 
-    .answers {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      width: 80%;
-    }
-
-    .answers button {
-      padding: 15px;
-      font-size: 1.2em;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    .answers button:hover {
-      opacity: 0.8;
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
-      .answers button {
-        font-size: 1em;
-        padding: 12px;
-      }
-    }
-
-  </style>
+        .final-msg { font-size: 3rem; font-weight: 900; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="player player1">
-      <h2 id="player1-name">Player 1</h2>
-      <div class="score" id="player1-score">Score: 0</div>
-      <div class="question" id="player1-question">Question will appear here</div>
-      <div class="answers" id="player1-answers"></div>
+
+<div class="container">
+    <div id="p1" class="player-side">
+        <h1>Group 1</h1>
+        <div class="score-board">Score: <span id="score1">0</span></div>
+        <div id="q1" class="question-text">Loading...</div>
+        <div id="btns1" class="options-grid"></div>
     </div>
 
-    <div class="player player2">
-      <h2 id="player2-name">Player 2</h2>
-      <div class="score" id="player2-score">Score: 0</div>
-      <div class="question" id="player2-question">Question will appear here</div>
-      <div class="answers" id="player2-answers"></div>
+    <div id="p2" class="player-side">
+        <h1>Group 2</h1>
+        <div class="score-board">Score: <span id="score2">0</span></div>
+        <div id="q2" class="question-text">Loading...</div>
+        <div id="btns2" class="options-grid"></div>
     </div>
-  </div>
+</div>
 
-  <script>
-    // Quiz questions
+<script>
     const questions = [
-      { question: "Which type of art uses electronic and mechanical devices instead of traditional hand techniques to create images and effects?", options: ["Digital Art","Mobile Phone Art","Digital Photography","Digital Painting"], answer: "Digital Art" },
-      { question: "Which art form allows you to create original works using a smartphone or tablet, combining images, text, sound, and simple animations?", options: ["Digital Art","Mobile Phone Art","Digital Photography","Digital Painting"], answer: "Mobile Phone Art" },
-      { question: "Which art type captures images using cameras or devices with built-in cameras like smartphones and tablets?", options: ["Digital Art","Mobile Phone Art","Digital Photography","Digital Painting"], answer: "Digital Photography" },
-      { question: "Which art form blends traditional painting mediums with modern digital tools, allowing modification and sharing digitally?", options: ["Digital Art","Mobile Phone Art","Digital Photography","Digital Painting"], answer: "Digital Painting" },
-      { question: "Which form of art is a broad category that includes creating images on devices like laptops, tablets, or smartphones, including illustrations, image manipulation, and effects?", options: ["Digital Art","Mobile Phone Art","Digital Photography","Digital Painting"], answer: "Digital Art" }
+        { q: "Which type of art uses electronic and mechanical devices instead of traditional hand techniques?", a: "Digital Art" },
+        { q: "Which art form allows you to create original works using a smartphone or tablet, combining images, sound, and animations?", a: "Mobile Phone Art" },
+        { q: "Which art type captures images using cameras or devices with built-in cameras like smartphones?", a: "Digital Photography" },
+        { q: "Which art form blends traditional painting mediums with modern digital tools?", a: "Digital Painting" },
+        { q: "Which broad category includes creating images on laptops or tablets, including illustrations and image manipulation?", a: "Digital Art" }
     ];
 
-    // Shuffle function
-    function shuffleArray(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
+    const options = ["Digital Art", "Mobile Phone Art", "Digital Photography", "Digital Painting"];
+
+    // Game state for both players
+    let state = {
+        p1: { score: 0, index: 0, deck: [] },
+        p2: { score: 0, index: 0, deck: [] }
+    };
+
+    function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
     }
 
-    // Player objects with shuffled questions
-    const player1 = { name: "Player 1", score: 0, questionIndex: 0, questions: shuffleArray([...questions]) };
-    const player2 = { name: "Player 2", score: 0, questionIndex: 0, questions: shuffleArray([...questions]) };
+    function initGame() {
+        state.p1.deck = shuffle([...questions]);
+        state.p2.deck = shuffle([...questions]);
+        render(1);
+        render(2);
+    }
 
-    function displayQuestion(player, questionElemId, answersElemId, scoreElemId) {
-      const questionElem = document.getElementById(questionElemId);
-      const answersElem = document.getElementById(answersElemId);
-      const scoreElem = document.getElementById(scoreElemId);
+    function render(playerNum) {
+        const p = state[`p${playerNum}`];
+        const sideEl = document.getElementById(`p${playerNum}`);
+        const qEl = document.getElementById(`q${playerNum}`);
+        const btnContainer = document.getElementById(`btns${playerNum}`);
+        const scoreEl = document.getElementById(`score${playerNum}`);
 
-      if (player.questionIndex >= 5) {
-        questionElem.textContent = "Finished!";
-        answersElem.innerHTML = "";
-        return;
-      }
+        scoreEl.innerText = p.score;
 
-      const currentQ = player.questions[player.questionIndex];
-      questionElem.textContent = currentQ.question;
-      answersElem.innerHTML = "";
+        if (p.index >= p.deck.length) {
+            sideEl.classList.add('finished');
+            sideEl.innerHTML = `<div class="final-msg">Finished!</div><div style="font-size:1.5rem; color:white;">Final Score: ${p.score}</div>`;
+            return;
+        }
 
-      currentQ.options.forEach(option => {
-        const btn = document.createElement("button");
-        btn.textContent = option;
-        btn.addEventListener("click", () => {
-          if (option === currentQ.answer) {
-            player.score += 2;
-            scoreElem.textContent = `Score: ${player.score}`;
-          }
-          player.questionIndex += 1;
-          displayQuestion(player, questionElemId, answersElemId, scoreElemId);
+        const currentQ = p.deck[p.index];
+        qEl.innerText = currentQ.q;
+        btnContainer.innerHTML = '';
+
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.innerText = opt;
+            btn.onclick = () => handleAnswer(playerNum, opt);
+            btnContainer.appendChild(btn);
         });
-        answersElem.appendChild(btn);
-      });
     }
 
-    // Initialize
-    displayQuestion(player1, "player1-question", "player1-answers", "player1-score");
-    displayQuestion(player2, "player2-question", "player2-answers", "player2-score");
+    function handleAnswer(playerNum, choice) {
+        const p = state[`p${playerNum}`];
+        const correctAnswer = p.deck[p.index].a;
 
-  </script>
+        if (choice === correctAnswer) {
+            p.score += 2;
+        }
+
+        p.index++;
+        render(playerNum);
+    }
+
+    initGame();
+</script>
+
 </body>
 </html>
